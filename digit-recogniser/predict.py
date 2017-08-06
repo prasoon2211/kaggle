@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, MaxPool2D, Flatten, Dropout 
+from keras.layers import Dense, Conv2D, MaxPool2D, Flatten, Dropout
 from keras.utils import to_categorical
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.callbacks import ModelCheckpoint
@@ -26,22 +26,22 @@ def preproc_data(X):
 
 def make_model(dropout=DEFAULT_DROPOUT, load=False):
     model = Sequential()
-    
+
     model.add(Conv2D(32, kernel_size=(5, 5), input_shape=(height, width, channels), activation='relu'))
     model.add(MaxPool2D(pool_size=(2, 2)))
 
     model.add(Conv2D(64, kernel_size=(5, 5), activation='relu'))
     model.add(MaxPool2D(pool_size=(2, 2)))
-    
+
     model.add(Flatten())
 
     model.add(Dense(1024, activation='relu'))
     model.add(Dropout(dropout))
     model.add(Dense(10, activation='softmax'))
-    
+
     if load:
         model.load_weights(wts_filepath)
-        
+
     model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
@@ -66,9 +66,9 @@ if tune:
                   'batch_size': [10, 50, 100],
                   'dropout': [0.1, 0.3]}
     model = KerasClassifier(build_fn=make_model, verbose=1)
-    grid = GridSearchCV(estimator=model, param_grid=param_grid)  
+    grid = GridSearchCV(estimator=model, param_grid=param_grid)
     grid_result = grid.fit(x_sample, y_sample)
-    
+
     # summarize results
     print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
